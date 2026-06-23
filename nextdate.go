@@ -11,10 +11,10 @@ import (
 
 const dateFormat = "20060102"
 
-// NextDate вычисляет следующую дату выполнения задачи.
-// now — дата, относительно которой ищем следующую;
-// dstart — исходная дата задачи в формате 20060102;
-// repeat — правило повторения.
+// NextDate вычисляет следующую дату выполнения задачи
+// now — дата, относительно которой ищем следующую
+// dstart — исходная дата задачи в формате 20060102
+// repeat — правило повторения
 func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	if repeat == "" {
 		return "", errors.New("правило повторения не указано")
@@ -78,9 +78,9 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 		if len(parts) < 2 {
 			return "", errors.New("правило m: не указаны дни")
 		}
-		// Разбиваем на дни и (опционально) месяцы
+		// разбивка на дни и  месяцы
 		mparts := strings.SplitN(parts[1], " ", 2)
-		var days [32]bool // индексы 1–31, -1 и -2 обрабатываем отдельно
+		var days [32]bool // индексы 1–31, -1 и -2  отдельно
 		var lastDay bool  // -1: последний день месяца
 		var preLast bool  // -2: предпоследний день месяца
 		var months [13]bool
@@ -119,7 +119,7 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 			if hasMonths && !months[int(date.Month())] {
 				continue
 			}
-			// Последний и предпоследний день месяца
+			// последний и предпоследний день месяца
 			last := lastDayOfMonth(date)
 			if lastDay && date.Day() == last {
 				break
@@ -139,7 +139,7 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	return date.Format(dateFormat), nil
 }
 
-// lastDayOfMonth возвращает номер последнего дня месяца для заданной даты.
+// lastDayOfMonth возвращает номер последнего дня месяца для заданной даты
 func lastDayOfMonth(t time.Time) int {
 	return time.Date(t.Year(), t.Month()+1, 0, 0, 0, 0, 0, t.Location()).Day()
 }

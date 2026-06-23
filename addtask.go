@@ -6,23 +6,23 @@ import (
 	"time"
 )
 
-// checkDate проверяет и корректирует дату задачи.
+// checkDate проверяет и корректирует дату задачи
 func checkDate(task *Task) error {
 	now := time.Now()
 
-	// Если дата не указана — подставляем сегодня
+	// даты нет - дата сегодня
 	if task.Date == "" {
 		task.Date = now.Format(dateFormat)
 		return nil
 	}
 
-	// Проверяем корректность формата даты
+	// чек на корректность формата даты
 	t, err := time.Parse(dateFormat, task.Date)
 	if err != nil {
 		return err
 	}
 
-	// Если правило повторения указано — проверяем его и получаем следующую дату
+	// правило повторения указано, тогда взять его и получить следующую дату
 	var next string
 	if task.Repeat != "" {
 		next, err = NextDate(now, task.Date, task.Repeat)
@@ -31,7 +31,7 @@ func checkDate(task *Task) error {
 		}
 	}
 
-	// Если дата задачи меньше сегодняшней
+	// проверка на дату, которая раньше сегодняшнего дня
 	if !t.After(truncateToDay(now)) {
 		if task.Repeat == "" {
 			task.Date = now.Format(dateFormat)
@@ -43,12 +43,12 @@ func checkDate(task *Task) error {
 	return nil
 }
 
-// truncateToDay обнуляет время до начала суток.
+// truncateToDay обнуляет время до начала суток
 func truncateToDay(t time.Time) time.Time {
 	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
 }
 
-// addTaskHandler обрабатывает POST /api/task.
+// addTaskHandler обрабатывает POST /api/task
 func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 	var task Task
 	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {

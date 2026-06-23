@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Tasks возвращает список ближайших задач из БД.
+// Tasks возвращает список ближайших задач из дб
 func Tasks(limit int) ([]*Task, error) {
 	rows, err := db.Query(
 		`SELECT id, date, title, comment, repeat FROM scheduler ORDER BY date LIMIT ?`,
@@ -28,7 +28,7 @@ func Tasks(limit int) ([]*Task, error) {
 	return tasks, rows.Err()
 }
 
-// TasksSearch возвращает задачи по строке поиска или дате.
+// TasksSearch возвращает задачи по строке поиска или дате
 func TasksSearch(search string, limit int) ([]*Task, error) {
 	// Проверяем, является ли search датой в формате 02.01.2006
 	t, err := time.Parse("02.01.2006", search)
@@ -54,7 +54,7 @@ func TasksSearch(search string, limit int) ([]*Task, error) {
 		return tasks, rows.Err()
 	}
 
-	// Поиск по подстроке в title или comment
+	// поиск по подстроке в title или comment
 	like := "%" + search + "%"
 	rows, err := db.Query(
 		`SELECT id, date, title, comment, repeat FROM scheduler WHERE title LIKE ? OR comment LIKE ? ORDER BY date LIMIT ?`,

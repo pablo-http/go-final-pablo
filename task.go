@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-// Task представляет задачу в планировщике.
+// Task представляет задачу в планировщике
 type Task struct {
 	ID      string `json:"id"`
 	Date    string `json:"date"`
@@ -11,7 +11,7 @@ type Task struct {
 	Repeat  string `json:"repeat"`
 }
 
-// AddTask добавляет задачу в таблицу scheduler и возвращает id записи.
+// AddTask добавляет задачу в таблицу scheduler и возвращает айдишник записи
 func AddTask(task *Task) (int64, error) {
 	query := `INSERT INTO scheduler (date, title, comment, repeat) VALUES (?, ?, ?, ?)`
 	res, err := db.Exec(query, task.Date, task.Title, task.Comment, task.Repeat)
@@ -21,7 +21,7 @@ func AddTask(task *Task) (int64, error) {
 	return res.LastInsertId()
 }
 
-// GetTask возвращает задачу по id.
+// GetTask возвращает задачу по айди
 func GetTask(id string) (*Task, error) {
 	t := &Task{}
 	err := db.QueryRow(
@@ -33,7 +33,7 @@ func GetTask(id string) (*Task, error) {
 	return t, nil
 }
 
-// UpdateTask обновляет задачу в БД.
+// UpdateTask обновляет задачу в дб
 func UpdateTask(task *Task) error {
 	query := `UPDATE scheduler SET date=?, title=?, comment=?, repeat=? WHERE id=?`
 	res, err := db.Exec(query, task.Date, task.Title, task.Comment, task.Repeat, task.ID)
@@ -50,7 +50,7 @@ func UpdateTask(task *Task) error {
 	return nil
 }
 
-// DeleteTask удаляет задачу по id.
+// DeleteTask удаляет задачу по айди
 func DeleteTask(id string) error {
 	res, err := db.Exec(`DELETE FROM scheduler WHERE id = ?`, id)
 	if err != nil {
@@ -66,7 +66,7 @@ func DeleteTask(id string) error {
 	return nil
 }
 
-// UpdateDate обновляет только дату задачи.
+// UpdateDate обновляет дату таски
 func UpdateDate(id string, next string) error {
 	_, err := db.Exec(`UPDATE scheduler SET date = ? WHERE id = ?`, next, id)
 	return err

@@ -19,7 +19,7 @@ func doneTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Если правило повторения не указано — удаляем задачу
+	// если  повторения нет, то удалить задачу
 	if task.Repeat == "" {
 		if err := DeleteTask(id); err != nil {
 			writeError(w, err.Error())
@@ -29,7 +29,7 @@ func doneTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Для периодической задачи вычисляем следующую дату
+	// вычисление некст даты для повторяющейся задачи
 	next, err := NextDate(time.Now(), task.Date, task.Repeat)
 	if err != nil {
 		writeError(w, err.Error())

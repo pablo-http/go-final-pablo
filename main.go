@@ -47,9 +47,10 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/nextdate", nextDateHandler)
-	mux.HandleFunc("/api/task", taskHandler)
-	mux.HandleFunc("/api/task/done", doneTaskHandler)
-	mux.HandleFunc("/api/tasks", tasksHandler)
+	mux.HandleFunc("/api/signin", signinHandler)
+	mux.HandleFunc("/api/task", auth(taskHandler))
+	mux.HandleFunc("/api/task/done", auth(doneTaskHandler))
+	mux.HandleFunc("/api/tasks", auth(tasksHandler))
 	mux.Handle("/", http.FileServer(http.Dir(webDir)))
 
 	log.Printf("Сервер запущен на порту %d, БД: %s", port, dbFile)
