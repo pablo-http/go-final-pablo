@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+
+	"go_final_pablo/pkg/api"
+	"go_final_pablo/pkg/db"
 )
 
 const defaultPort = 7540
@@ -28,33 +31,19 @@ func getDBFile() string {
 	return defaultDBFile
 }
 
-func loggingMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("%s %s", r.Method, r.URL.String())
-		next.ServeHTTP(w, r)
-	})
-}
-
 func main() {
-	dbFile := getDBFile()
-	if err := initDB(dbFile); err != nil {
+	if err := db.Init(getDBFile()); err != nil {
 		log.Fatalf("Ошибка инициализации БД: %v", err)
 	}
-	defer db.Close()
+	defer db.DB.Close()
 
-	port := getPort()
-	addr := fmt.Sprintf(":%d", port)
+	api.Init()
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/api/nextdate", nextDateHandler)
-	mux.HandleFunc("/api/signin", signinHandler)
-	mux.HandleFunc("/api/task", auth(taskHandler))
-	mux.HandleFunc("/api/task/done", auth(doneTaskHandler))
-	mux.HandleFunc("/api/tasks", auth(tasksHandler))
-	mux.Handle("/", http.FileServer(http.Dir(webDir)))
+	http.Handle("/", http.FileServer(http.Dir(webDir)))
 
-	log.Printf("Сервер запущен на порту %d, БД: %s", port, dbFile)
-	if err := http.ListenAndServe(addr, loggingMiddleware(mux)); err != nil {
+	addr := fmt.Sprintf(":%d", getPort())
+	log.Printf("Сервер запущен на порту %s", addr)
+	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"crypto/sha256"
@@ -10,51 +10,45 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// jwtSecret — секрет для подписи жвт
 var jwtSecret = []byte("go-final-pablo-secret")
 
-// hashPassword возвращает SHA-256 хэш пароля
 func hashPassword(pass string) string {
 	h := sha256.Sum256([]byte(pass))
 	return fmt.Sprintf("%x", h)
 }
 
-// signinHandler обрабатывает POST /api/signin.
 func signinHandler(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Password string `json:"password"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, "ошибка десериализации JSON")
+		writeError(w, http.StatusBadRequest, "ошибка десериализации JSON")
 		return
 	}
 
 	pass := os.Getenv("TODO_PASSWORD")
 	if req.Password != pass {
-		writeError(w, "неверный пароль")
+		writeError(w, http.StatusUnauthorized, "неверный пароль")
 		return
 	}
 
-	// создание жвт с хэшем пароля в качестве claim
 	claims := jwt.MapClaims{
 		"hash": hashPassword(pass),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signed, err := token.SignedString(jwtSecret)
 	if err != nil {
-		writeError(w, "ошибка формирования токена")
+		writeError(w, http.StatusInternalServerError, "ошибка формирования токена")
 		return
 	}
 
-	writeJSON(w, map[string]string{"token": signed})
+	writeJSON(w, http.StatusOK, map[string]string{"token": signed})
 }
 
-// auth  middleware для проверки аутентификации
 func auth(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		pass := os.Getenv("TODO_PASSWORD")
 		if len(pass) == 0 {
-			// если пароль не задан, то авторизация не требуется
 			next(w, r)
 			return
 		}
@@ -75,7 +69,6 @@ func auth(next http.HandlerFunc) http.HandlerFunc {
 			})
 			if err == nil && token.Valid {
 				if claims, ok := token.Claims.(jwt.MapClaims); ok {
-					// проверка на хэш в токене совпадает с хэшем текущего пароля
 					if claims["hash"] == hashPassword(pass) {
 						valid = true
 					}

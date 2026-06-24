@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"database/sql"
@@ -7,7 +7,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-var db *sql.DB
+var DB *sql.DB
 
 const schema = `
 CREATE TABLE IF NOT EXISTS scheduler (
@@ -20,17 +20,17 @@ CREATE TABLE IF NOT EXISTS scheduler (
 CREATE INDEX IF NOT EXISTS idx_scheduler_date ON scheduler (date);
 `
 
-func initDB(dbFile string) error {
+func Init(dbFile string) error {
 	_, err := os.Stat(dbFile)
 	install := os.IsNotExist(err)
 
-	db, err = sql.Open("sqlite", dbFile)
+	DB, err = sql.Open("sqlite", dbFile)
 	if err != nil {
 		return err
 	}
 
 	if install {
-		if _, err = db.Exec(schema); err != nil {
+		if _, err = DB.Exec(schema); err != nil {
 			return err
 		}
 	}
